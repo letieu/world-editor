@@ -10,6 +10,10 @@ export class Graph {
     this.edges = edges;
   }
 
+  get nodeCount() {
+    return this.nodes.length;
+  }
+
   addNode(node: GraphNode) {
     this.nodes.push(node);
   }

@@ -91,7 +91,7 @@ export class Editor {
     const y = this.cursor.y;
 
     const node = this.graph.getNodes().find(node => {
-      return Math.abs(node.x - x) < 5 && Math.abs(node.y - y) < 5;
+      return Math.abs(node.x - x) < 10 && Math.abs(node.y - y) < 10;
     });
 
     return node;

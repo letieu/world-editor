@@ -69,12 +69,13 @@ export class Drawer {
 
     const hoverNode = this.editor.hoverNode;
     if (hoverNode !== null) {
-      this.context.fillStyle = 'blue';
+      // fill color transparent blue
+      this.context.fillStyle = 'rgba(0, 0, 255, 0.5)';
       this.context.beginPath();
       this.context.arc(
         this.graph.getNodes()[hoverNode].x,
         this.graph.getNodes()[hoverNode].y,
-        5,
+        10,
         0,
         2 * Math.PI
       );

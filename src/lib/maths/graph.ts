@@ -23,8 +23,23 @@ export class Graph {
     this.nodes[index].y = y;
   }
 
+  removeNode(index: number) {
+    const [removedNode] = this.nodes.splice(index, 1);
+    // remove edges
+    this.edges = this.edges.filter(edge => {
+      return edge[0] !== removedNode && edge[1] !== removedNode;
+    });
+  }
+
   getNodes() {
     return this.nodes;
+  }
+
+  getNode(index: number | null): GraphNode | null {
+    if (index === null) {
+      return null;
+    }
+    return this.nodes[index] || null;
   }
 
   getEdges() {

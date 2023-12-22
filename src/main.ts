@@ -18,15 +18,8 @@ const canvas = document.querySelector<HTMLCanvasElement>('#canvas')!
 
 const nodes: GraphNode[] = [
   { x: 100, y: 100 },
-  { x: 200, y: 100 },
-  { x: 200, y: 200 },
-  { x: 100, y: 200 },
 ]
-const edges: GraphEdge[] = [
-  [nodes[0], nodes[1]],
-  [nodes[2], nodes[3]],
-  [nodes[3], nodes[0]],
-]
+const edges: GraphEdge[] = []
 
 const graph = new Graph(nodes, edges)
 const editor = new Editor(graph, canvas)

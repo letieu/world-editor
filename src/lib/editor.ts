@@ -17,50 +17,45 @@ export class Editor {
     this.listenMouseUp();
     this.listenMouseMove();
     this.listenKeyDown();
-  }
-  listenMouseUp() {
-    this.canvas.addEventListener('mouseup', (event) => {
-      if (this.dragNode !== null) {
-        this.dragNode = null;
-      }
-    });
+    this.listenContextMenu();
   }
 
   private listenMouseDown() {
     this.canvas.addEventListener('mousedown', (event) => {
-      const nearbyNode = this.getNearCursorNode();
+      if (event.button === 0) { // left click
+        if (this.hoverNode !== null) {
+          if (this.selectedNode !== null) { // add edge
+            this.graph.addEdge([
+              this.graph.getNodes()[this.selectedNode],
+              this.graph.getNodes()[this.hoverNode]
+            ]);
+            this.selectedNode = null;
+          } else { // select node
+            this.selectedNode = this.hoverNode;
+            this.dragNode = this.hoverNode;
+          }
+          return;
+        }
 
-      // add edge
-      if (nearbyNode && this.selectedNode !== null) {
-        this.graph.addEdge([
-          this.graph.getNodes()[this.selectedNode],
-          nearbyNode
-        ]);
-        this.selectedNode = null;
-        return;
+        // add node
+        const { x, y } = this.getXYFromEvent(event);
+        this.graph.addNode({ x, y });
+
+        if (this.selectedNode !== null) {
+          this.graph.addEdge([
+            this.graph.getNodes()[this.selectedNode],
+            this.graph.getNodes()[this.graph.getNodes().length - 1]
+          ]);
+        }
+
+        this.selectedNode = this.graph.getNodes().length - 1;
       }
 
-      // select node
-      if (nearbyNode) {
-        const nodeIndex = this.graph.getNodes().indexOf(nearbyNode);
-        this.selectedNode = nodeIndex;
-        this.dragNode = nodeIndex;
-        return;
+      if (event.button === 2) { // right click
+        if (this.hoverNode !== null) {
+          this.graph.removeNode(this.hoverNode);
+        }
       }
-
-      const { x, y } = this.getXYFromEvent(event);
-
-      // add node
-      this.graph.addNode({ x, y });
-
-      if (this.selectedNode) {
-        this.graph.addEdge([
-          this.graph.getNodes()[this.selectedNode],
-          this.graph.getNodes()[this.graph.getNodes().length - 1]
-        ]);
-      }
-
-      this.selectedNode = this.graph.getNodes().length - 1;
     })
   }
 
@@ -84,6 +79,20 @@ export class Editor {
 
       this.updateCursor(event);
     })
+  }
+
+  listenMouseUp() {
+    this.canvas.addEventListener('mouseup', (event) => {
+      if (this.dragNode !== null) {
+        this.dragNode = null;
+      }
+    });
+  }
+
+  private listenContextMenu() {
+    this.canvas.addEventListener('contextmenu', (event) => {
+      event.preventDefault();
+    });
   }
 
   private getNearCursorNode() {

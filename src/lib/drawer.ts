@@ -67,14 +67,15 @@ export class Drawer {
     this.context.arc(cursor.x, cursor.y, 5, 0, 2 * Math.PI);
     this.context.fill();
 
-    const hoverNode = this.editor.hoverNode;
-    if (hoverNode !== null) {
-      // fill color transparent blue
+    // draw hover node
+    const hoverIndex = this.editor.hoverNode;
+    const hoverNode = this.graph.getNode(hoverIndex);
+    if (hoverNode) {
       this.context.fillStyle = 'rgba(0, 0, 255, 0.5)';
       this.context.beginPath();
       this.context.arc(
-        this.graph.getNodes()[hoverNode].x,
-        this.graph.getNodes()[hoverNode].y,
+        hoverNode.x,
+        hoverNode.y,
         10,
         0,
         2 * Math.PI
@@ -85,6 +86,7 @@ export class Drawer {
       this.canvas.style.cursor = 'pointer';
     }
 
+    // draw selected node
     const selectedNode = this.editor.selectedNode;
     if (selectedNode !== null) {
       this.context.fillStyle = 'green';

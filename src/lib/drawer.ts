@@ -15,96 +15,89 @@ export class Drawer {
   }
 
   draw() {
-    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.clearCanvas();
     this.drawGrid();
     this.drawNodes();
     this.drawEdges();
     this.drawEditor();
-
     requestAnimationFrame(() => this.draw());
   }
 
+  private clearCanvas() {
+    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+  }
+
   private drawGrid() {
+    const step = 10;
     this.context.strokeStyle = 'lightgray';
     this.context.lineWidth = 1;
-    for (let x = 0; x < this.canvas.width; x += 10) {
-      this.context.beginPath();
-      this.context.moveTo(x, 0);
-      this.context.lineTo(x, this.canvas.height);
-      this.context.stroke();
+
+    for (let x = 0; x < this.canvas.width; x += step) {
+      this.drawLine(x, 0, x, this.canvas.height);
     }
-    for (let y = 0; y < this.canvas.height; y += 10) {
-      this.context.beginPath();
-      this.context.moveTo(0, y);
-      this.context.lineTo(this.canvas.width, y);
-      this.context.stroke();
+
+    for (let y = 0; y < this.canvas.height; y += step) {
+      this.drawLine(0, y, this.canvas.width, y);
     }
+  }
+
+  private drawLine(startX: number, startY: number, endX: number, endY: number) {
+    this.context.beginPath();
+    this.context.moveTo(startX, startY);
+    this.context.lineTo(endX, endY);
+    this.context.stroke();
   }
 
   private drawNodes() {
     this.context.fillStyle = 'black';
     this.graph.getNodes().forEach(node => {
-      this.context.beginPath();
-      this.context.arc(node.x, node.y, 5, 0, 2 * Math.PI);
-      this.context.fill();
+      this.drawPoint(node.x, node.y, 5);
     });
+  }
+
+  private drawPoint(x: number, y: number, radius: number) {
+    this.context.beginPath();
+    this.context.arc(x, y, radius, 0, 2 * Math.PI);
+    this.context.fill();
   }
 
   private drawEdges() {
     this.context.strokeStyle = 'red';
     this.graph.getEdges().forEach(edge => {
-      this.context.beginPath();
-      this.context.moveTo(edge[0].x, edge[0].y);
-      this.context.lineTo(edge[1].x, edge[1].y);
-      this.context.stroke();
+      this.drawLine(edge[0].x, edge[0].y, edge[1].x, edge[1].y);
     });
   }
 
   private drawEditor() {
     const cursor = this.editor.cursor;
-    this.context.fillStyle = 'gray';
-    this.context.beginPath();
-    this.context.arc(cursor.x, cursor.y, 5, 0, 2 * Math.PI);
-    this.context.fill();
+    this.context.fillStyle = 'rgba(0, 0, 0, 0.5)';
+    this.drawPoint(cursor.x, cursor.y, 5);
 
-    // draw hover node
     const hoverIndex = this.editor.hoverNode;
     const hoverNode = this.graph.getNode(hoverIndex);
     if (hoverNode) {
-      this.context.fillStyle = 'rgba(0, 0, 255, 0.5)';
-      this.context.beginPath();
-      this.context.arc(
-        hoverNode.x,
-        hoverNode.y,
-        10,
-        0,
-        2 * Math.PI
-      );
-      this.context.fill();
-
-      // change cursor
+      this.drawHoverNode(hoverNode.x, hoverNode.y);
       this.canvas.style.cursor = 'pointer';
+    } else {
+      this.canvas.style.cursor = 'default';
     }
 
-    // draw selected node
-    const selectedNode = this.editor.selectedNode;
-    if (selectedNode !== null) {
-      this.context.fillStyle = 'green';
-      this.context.beginPath();
-      this.context.arc(
-        this.graph.getNodes()[selectedNode].x,
-        this.graph.getNodes()[selectedNode].y,
-        5,
-        0,
-        2 * Math.PI
-      );
-      this.context.fill();
+    const selectedIndex = this.editor.selectedNode;
+    const selected = this.graph.getNode(selectedIndex);
+    if (selected) {
+      this.context.fillStyle = 'rgba(0, 125, 255, 0.5)';
+      // draw a border around the selected node
+      this.drawPoint(selected.x, selected.y, 10);
 
-      this.context.strokeStyle = 'green';
-      this.context.beginPath();
-      this.context.moveTo(this.graph.getNodes()[selectedNode].x, this.graph.getNodes()[selectedNode].y);
-      this.context.lineTo(cursor.x, cursor.y);
-      this.context.stroke();
+      this.context.setLineDash([5, 5]);
+      this.context.strokeStyle = 'grey';
+      this.drawLine(selected.x, selected.y, cursor.x, cursor.y);
+      this.context.setLineDash([]);
     }
+  }
+
+  private drawHoverNode(x: number, y: number) {
+    this.context.fillStyle = 'rgba(0, 0, 255, 0.5)';
+    this.drawPoint(x, y, 10);
   }
 }

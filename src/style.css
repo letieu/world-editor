@@ -87,6 +87,10 @@ button:focus-visible {
   margin-bottom: 1em;
 }
 
+#canvas {
+  background-color: rgba(0, 255, 0, 0.1);
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;

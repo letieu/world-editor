@@ -1,25 +1,35 @@
 import { Editor } from "./editor";
 import { Graph } from "./maths/graph";
+import { ViewPort } from "./viewport";
 
 export class Drawer {
-  private canvas: HTMLCanvasElement;
   private context: CanvasRenderingContext2D;
   private graph: Graph;
   private editor: Editor;
+  private viewPort: ViewPort;
+  private canvas: HTMLCanvasElement;
 
-  constructor(canvas: HTMLCanvasElement, graph: Graph, editor: Editor) {
-    this.canvas = canvas;
-    this.context = canvas.getContext('2d')!;
+  constructor(graph: Graph, editor: Editor) {
+    this.viewPort = editor.viewPort;
+    this.canvas = editor.viewPort.canvas;
+    this.context = this.canvas.getContext('2d')!;
     this.graph = graph;
     this.editor = editor;
   }
 
   draw() {
     this.clearCanvas();
+
+    this.context.save();
+    this.context.scale(1 / this.viewPort.zoom, 1 / this.viewPort.zoom);
+
     this.drawGrid();
     this.drawNodes();
     this.drawEdges();
     this.drawEditor();
+
+    this.context.restore();
+
     requestAnimationFrame(() => this.draw());
   }
 
@@ -28,16 +38,14 @@ export class Drawer {
   }
 
   private drawGrid() {
-    const step = 10;
-    this.context.strokeStyle = 'lightgray';
-    this.context.lineWidth = 1;
+    const step = 50;
+    const totalLinesOnCurrentView = this.canvas.width / (step / this.viewPort.zoom);
 
-    for (let x = 0; x < this.canvas.width; x += step) {
-      this.drawLine(x, 0, x, this.canvas.height);
-    }
-
-    for (let y = 0; y < this.canvas.height; y += step) {
-      this.drawLine(0, y, this.canvas.width, y);
+    this.context.strokeStyle = 'rgba(0, 0, 3, 0.1)';
+    for (let i = 0; i < totalLinesOnCurrentView; i++) {
+      const x = i * step;
+      this.drawLine(x, 0, x, this.canvas.height * this.viewPort.zoom);
+      this.drawLine(0, x, this.canvas.width * this.viewPort.zoom, x);
     }
   }
 

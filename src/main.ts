@@ -4,6 +4,7 @@ import { Graph } from './lib/maths/graph.ts'
 import { Drawer } from './lib/drawer.ts'
 import { Editor } from './lib/editor.ts'
 import { GraphEdge } from './lib/maths/graph-edge.ts'
+import { ViewPort } from './lib/viewport.ts'
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   <div>
@@ -22,7 +23,8 @@ const nodes: GraphNode[] = [
 const edges: GraphEdge[] = []
 
 const graph = new Graph(nodes, edges)
-const editor = new Editor(graph, canvas)
+const viewPort = new ViewPort(canvas)
+const editor = new Editor(graph, viewPort)
+const drawer = new Drawer(graph, editor)
 
-const drawer = new Drawer(canvas, graph, editor)
 drawer.draw()

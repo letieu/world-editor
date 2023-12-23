@@ -1,6 +1,9 @@
 import { Graph } from "./maths/graph";
+import { ViewPort } from "./viewport";
 
 export class Editor {
+  public viewPort: ViewPort;
+
   private graph: Graph;
   private canvas: HTMLCanvasElement;
 
@@ -9,9 +12,10 @@ export class Editor {
   dragNode: number | null = null;
   cursor: { x: number; y: number } = { x: 0, y: 0 };
 
-  constructor(graph: Graph, canvas: HTMLCanvasElement) {
+  constructor(graph: Graph, viewPort: ViewPort) {
     this.graph = graph;
-    this.canvas = canvas;
+    this.canvas = viewPort.canvas;
+    this.viewPort = viewPort;
 
     this.setupEventListeners();
 
@@ -68,7 +72,7 @@ export class Editor {
   }
 
   private handleNodeCreation(event: MouseEvent) {
-    const { x, y } = this.getXYFromEvent(event);
+    const { x, y } = this.cursor;
     this.graph.addNode({ x, y });
     const lastIndex = this.graph.nodeCount - 1;
 
@@ -95,6 +99,8 @@ export class Editor {
   }
 
   private handleMouseMove(event: MouseEvent) {
+    this.updateCursor(event);
+
     const nearbyNode = this.getNearCursorNode();
     this.hoverNode = nearbyNode ? this.graph.getNodes().indexOf(nearbyNode) : null;
 
@@ -102,8 +108,6 @@ export class Editor {
       this.selectedNode = null;
       this.graph.updateNode(this.dragNode, this.cursor);
     }
-
-    this.updateCursor(event);
   }
 
   private handleMouseUp() {
@@ -119,23 +123,16 @@ export class Editor {
   private getNearCursorNode() {
     const x = this.cursor.x;
     const y = this.cursor.y;
+    const distance = this.viewPort.zoom * 10;
 
     return this.graph.getNodes().find(node => (
-      Math.abs(node.x - x) < 10 && Math.abs(node.y - y) < 10
+      Math.abs(node.x - x) < distance && Math.abs(node.y - y) < distance
     ));
   }
 
   private updateCursor(event: MouseEvent) {
-    const { x, y } = this.getXYFromEvent(event);
+    const { x, y } = this.viewPort.getCursor(event);
     this.cursor.x = x;
     this.cursor.y = y;
-  }
-
-  private getXYFromEvent(event: MouseEvent) {
-    const rect = this.canvas.getBoundingClientRect();
-    return {
-      x: event.clientX - rect.left,
-      y: event.clientY - rect.top,
-    };
   }
 }
